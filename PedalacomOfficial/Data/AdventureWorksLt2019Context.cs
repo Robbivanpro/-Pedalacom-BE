@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PedalacomOfficial.Models;
 
-namespace PedalacomOfficial.Models;
+namespace PedalacomOfficial.Data;
 
 public partial class AdventureWorksLt2019Context : DbContext
 {

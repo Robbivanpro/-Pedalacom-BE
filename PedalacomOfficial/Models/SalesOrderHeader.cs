@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PedalacomOfficial.Models.Domini;
 
 namespace PedalacomOfficial.Models;
 

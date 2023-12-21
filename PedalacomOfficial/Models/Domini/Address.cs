@@ -6,7 +6,8 @@ namespace PedalacomOfficial.Models;
 
 public partial class Address
 {
-  
+    internal Guid Id;
+
     public int AddressId { get; set; }
 
    

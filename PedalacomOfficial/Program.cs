@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using PedalacomOfficial;
+using PedalacomOfficial.Data;
 using PedalacomOfficial.Models;
- 
+using PedalacomOfficial.Repositories.Implementation;
+using PedalacomOfficial.Repositories.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Qui puoi aggiungere configurazioni personalizzate per Swagger
+    options.SchemaFilter<ExcludePropertiesSchemaFilter>();
+});
 builder.Services.AddDbContext<AdventureWorksLt2019Context>(options =>
 
     options.UseSqlServer(builder.Configuration.GetConnectionString("PedalacomConnectionString"))
 );
+
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 var app = builder.Build();
 

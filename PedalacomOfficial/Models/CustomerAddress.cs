@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace PedalacomOfficial.Models;
+﻿namespace PedalacomOfficial.Models;
 
 /// <summary>
 /// Cross-reference table mapping customers to their address(es).

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace PedalacomOfficial.Models.DTO
+﻿namespace PedalacomOfficial.Models.DTO
 {
     public class UpdateAddress
     {
@@ -22,12 +20,6 @@ namespace PedalacomOfficial.Models.DTO
 
 
         public string PostalCode { get; set; } = null!;
-
-        [JsonIgnore]
-        public Guid Rowguid { get; set; }
-
-        [JsonIgnore]
-        public DateTime SomeDateTime { get; set; }
 
     }
 }

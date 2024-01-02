@@ -1,185 +1,141 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PedalacomOfficial.Data;
 using PedalacomOfficial.Models;
-using PedalacomOfficial.Models.DTO;
-using PedalacomOfficial.Repositories.Interface;
-using PedalacomOfficial.Repositories.Implementation;
 
 namespace PedalacomOfficial.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class AddressesController : ControllerBase
     {
-        private readonly IAddressRepository addressRepository;
+        private readonly AdventureWorksLt2019Context _context;
 
-        public AddressesController(IAddressRepository addressRepository)
+        public AddressesController(AdventureWorksLt2019Context context)
         {
-            
-            this.addressRepository = addressRepository;
-        }
-
-        [HttpPost]
-
-        public async Task<IActionResult> CreateAddresses(CreateAddressRequestDTO request)
-        {
-            var address = new Address
-            {
-
-                AddressLine1 = request.AddressLine1,
-
-
-                AddressLine2 = request.AddressLine2,
-
-
-                City = request.City,
-
-
-                StateProvince = request.StateProvince,
-
-                CountryRegion = request.CountryRegion,
-
-
-                PostalCode =request.PostalCode,
-            };
-
-            await addressRepository.CreateAsync(address);
-
-            var response = new AddressDTO
-            {
-                Id = address.Id,
-                AddressLine1 = address.AddressLine1,
-                AddressLine2 = address.AddressLine2,
-                City = address.City,
-                StateProvince = address.StateProvince,
-                CountryRegion = address.CountryRegion,
-                PostalCode = address.PostalCode,
-
-            };
-
-            return Ok(response);
+            _context = context;
         }
 
         // GET: api/Addresses
-
         [HttpGet]
-        public async Task<IActionResult> GetAllAddress()
+        public async Task<ActionResult<IEnumerable<Address>>> GetAddresses()
         {
-            var addresses = await addressRepository.GetAllAsync();
-
-            var response = new List <AddressDTO>();
-
-            foreach (var address in addresses)
-            {
-                response.Add(new AddressDTO
-                {
-                    Id=address.Id,
-                    AddressLine1 = address.AddressLine1,
-                    AddressLine2 = address.AddressLine2,
-                    City = address.City,
-                    StateProvince = address.StateProvince,
-                    CountryRegion = address.CountryRegion,
-                    PostalCode = address.PostalCode,
-                });
-            }
-            return Ok(response);
+          if (_context.Addresses == null)
+          {
+              return NotFound();
+          }
+            return await _context.Addresses.ToListAsync();
         }
 
         // GET: api/Addresses/5
-       [HttpGet]
-       [Route("{id}")]
-
-       public async Task<IActionResult> GetAddressById([FromRoute]Guid id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Address>> GetAddress(int id)
         {
-            var existingAddress = await addressRepository.GetByID(id);
+          if (_context.Addresses == null)
+          {
+              return NotFound();
+          }
+            var address = await _context.Addresses.FindAsync(id);
 
-            if(existingAddress is null)
+            if (address == null)
             {
                 return NotFound();
             }
-            var response = new AddressDTO
-            {
-                Id = existingAddress.Id,
-                AddressLine1 = existingAddress.AddressLine1,
-                AddressLine2 = existingAddress.AddressLine2,
-                City = existingAddress.City,
-                StateProvince = existingAddress.StateProvince,
-                CountryRegion = existingAddress.CountryRegion,
-                PostalCode = existingAddress.PostalCode,
-            };
 
-            return Ok (response);
+            return address;
         }
 
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> EditAddress([FromRoute] Guid id, UpdateAddress request)
+        // PUT: api/Addresses/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAddress(int id, Address address)
         {
-            // Cerca prima l'indirizzo esistente nel database
-            var existingAddress = await addressRepository.GetByID(id);
+            if (id != address.AddressId)
+            {
+                return BadRequest();
+            }
+
+            var existingAddress =  _context.Addresses.FirstOrDefault(x => x.AddressId == id);
+
             if (existingAddress == null)
             {
                 return NotFound();
             }
 
-            // Aggiorna i campi dell'indirizzo esistente con i dati della richiesta
-            existingAddress.AddressLine1 = request.AddressLine1;
-            existingAddress.AddressLine2 = request.AddressLine2;
-            existingAddress.City = request.City;
-            existingAddress.StateProvince = request.StateProvince;
-            existingAddress.CountryRegion = request.CountryRegion;
-            existingAddress.PostalCode = request.PostalCode;
+            existingAddress.AddressLine1=address.AddressLine1;
+            existingAddress.AddressLine2=address.AddressLine2;
+            existingAddress.City=address.City;
+            existingAddress.StateProvince=address.StateProvince;
+            existingAddress.CountryRegion=address.CountryRegion;
+            existingAddress.PostalCode=address.PostalCode;
 
-            // Salva le modifiche nel database
-            var updatedAddress = await addressRepository.UpdateAsync(existingAddress);
-            if (updatedAddress == null)
+            try
             {
-                // Gestisci il caso in cui l'aggiornamento non va a buon fine
-                return StatusCode(500, "Errore durante l'aggiornamento dell'indirizzo");
+                await _context.SaveChangesAsync();
             }
 
-            // Crea il DTO di risposta con i dati aggiornati
-            var response = new AddressDTO
-            {
-                Id = updatedAddress.Id,
-                AddressLine1 = updatedAddress.AddressLine1,
-                AddressLine2 = updatedAddress.AddressLine2,
-                City = updatedAddress.City,
-                StateProvince = updatedAddress.StateProvince,
-                CountryRegion = updatedAddress.CountryRegion,
-                PostalCode = updatedAddress.PostalCode,
-            };
 
-            return Ok(response);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AddressExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+                
+            return NoContent();
         }
 
+           
+
+        // POST: api/Addresses
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Address>> PostAddress(Address address)
+        {
+          if (_context.Addresses == null)
+          {
+              return Problem("Entity set 'AdventureWorksLt2019Context.Addresses'  is null.");
+          }
+            _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetAddress", new { id = address.AddressId }, address);
+        }
 
 
         // DELETE: api/Addresses/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAddress(int id)
         {
-            if (dbContext.Addresses == null)
+            if (_context.Addresses == null)
             {
                 return NotFound();
             }
-            var address = await dbContext.Addresses.FindAsync(id);
+            var address = await _context.Addresses.FindAsync(id);
             if (address == null)
             {
                 return NotFound();
             }
 
-            dbContext.Addresses.Remove(address);
-            await dbContext.SaveChangesAsync();
+            _context.Addresses.Remove(address);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool AddressExists(int id)
         {
-            return (dbContext.Addresses?.Any(e => e.AddressId == id)).GetValueOrDefault();
+            return (_context.Addresses?.Any(e => e.AddressId == id)).GetValueOrDefault();
         }
     }
 }

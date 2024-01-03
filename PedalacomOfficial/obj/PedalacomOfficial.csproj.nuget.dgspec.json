@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\PedalacomOfficial.csproj": {}
+    "C:\\Users\\rosma\\Desktop\\-Pedalacom-BE\\PedalacomOfficial\\PedalacomOfficial.csproj": {}
   },
   "projects": {
-    "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\PedalacomOfficial.csproj": {
+    "C:\\Users\\rosma\\Desktop\\-Pedalacom-BE\\PedalacomOfficial\\PedalacomOfficial.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\PedalacomOfficial.csproj",
+        "projectUniqueName": "C:\\Users\\rosma\\Desktop\\-Pedalacom-BE\\PedalacomOfficial\\PedalacomOfficial.csproj",
         "projectName": "PedalacomOfficial",
-        "projectPath": "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\PedalacomOfficial.csproj",
-        "packagesPath": "C:\\Users\\rober\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\obj\\",
+        "projectPath": "C:\\Users\\rosma\\Desktop\\-Pedalacom-BE\\PedalacomOfficial\\PedalacomOfficial.csproj",
+        "packagesPath": "C:\\Users\\rosma\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\rosma\\Desktop\\-Pedalacom-BE\\PedalacomOfficial\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\rober\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\rosma\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -67,6 +67,18 @@
               "target": "Package",
               "version": "[6.0.16, )"
             },
+            "NLog": {
+              "target": "Package",
+              "version": "[5.2.8, )"
+            },
+            "NLog.Database": {
+              "target": "Package",
+              "version": "[5.2.8, )"
+            },
+            "NLog.Web.AspNetCore": {
+              "target": "Package",
+              "version": "[5.3.8, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
@@ -91,7 +103,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

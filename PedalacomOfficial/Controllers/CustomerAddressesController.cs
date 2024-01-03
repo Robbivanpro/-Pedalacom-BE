@@ -15,20 +15,31 @@ namespace PedalacomOfficial.Controllers
     public class CustomerAddressesController : ControllerBase
     {
         private readonly AdventureWorksLt2019Context _context;
-
-        public CustomerAddressesController(AdventureWorksLt2019Context context)
+        private readonly ILogger<CustomerAddressesController> _logger;
+        public CustomerAddressesController(AdventureWorksLt2019Context context, ILogger<CustomerAddressesController> logger)
         {
             _context = context;
+            _logger = logger;  // Inizializzato il logger
         }
 
         // GET: api/CustomerAddresses
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerAddress>>> GetCustomerAddresses()
         {
-          if (_context.CustomerAddresses == null)
-          {
-              return NotFound();
-          }
+            try
+            {
+                _logger.LogInformation("Getting all customer addresses");
+                if (_context.CustomerAddresses == null)
+                {
+                    _logger.LogWarning("CustomerAddresses list is null");
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting all customer addresses: {ex.Message}");
+            }
+          
             return await _context.CustomerAddresses.ToListAsync();
         }
 
@@ -36,18 +47,29 @@ namespace PedalacomOfficial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerAddress>> GetCustomerAddress(int id)
         {
-          if (_context.CustomerAddresses == null)
-          {
-              return NotFound();
-          }
-            var customerAddress = await _context.CustomerAddresses.FindAsync(id);
-
-            if (customerAddress == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Getting customer address with ID: {id}");
+                if (_context.CustomerAddresses == null)
+                {
+                    _logger.LogWarning("CustomerAddresses list is null");
+                    return NotFound();
+                }
+                var customerAddress = await _context.CustomerAddresses.FindAsync(id);
 
-            return customerAddress;
+                if (customerAddress == null)
+                {
+                    _logger.LogWarning($"Customer address with ID {id} not found");
+                    return NotFound();
+                }
+
+                return customerAddress;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting customer address with ID {id}: {ex.Message}");
+            }
+          return NotFound();
         }
 
         // PUT: api/CustomerAddresses/5
@@ -55,15 +77,17 @@ namespace PedalacomOfficial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomerAddress(int id, CustomerAddress customerAddress)
         {
-            if (id != customerAddress.CustomerId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(customerAddress).State = EntityState.Modified;
-
             try
             {
+                _logger.LogInformation($"Updating customer address with ID: {id}");
+                if (id != customerAddress.CustomerId)
+                {
+                    _logger.LogError("Bad request - ID mismatch");
+                    return BadRequest();
+                }
+
+                _context.Entry(customerAddress).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -77,6 +101,10 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Concurrency exception while updating customer address with ID {id}: {ex.Message}");
+            }
 
             return NoContent();
         }
@@ -86,13 +114,15 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<CustomerAddress>> PostCustomerAddress(CustomerAddress customerAddress)
         {
-          if (_context.CustomerAddresses == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.CustomerAddresses'  is null.");
-          }
-            _context.CustomerAddresses.Add(customerAddress);
             try
             {
+                _logger.LogInformation("Creating a new customer address");
+                if (_context.CustomerAddresses == null)
+                {
+                    _logger.LogWarning("CustomerAddresses list is null");
+                    return Problem("Entity set 'AdventureWorksLt2019Context.CustomerAddresses'  is null.");
+                }
+                _context.CustomerAddresses.Add(customerAddress);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
@@ -106,7 +136,11 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
-
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while creating a new customer address: {ex.Message}");
+            }
+            
             return CreatedAtAction("GetCustomerAddress", new { id = customerAddress.CustomerId }, customerAddress);
         }
 
@@ -114,19 +148,30 @@ namespace PedalacomOfficial.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomerAddress(int id)
         {
-            if (_context.CustomerAddresses == null)
+            try
             {
-                return NotFound();
+                _logger.LogInformation($"Deleting customer address with ID: {id}");
+                if (_context.CustomerAddresses == null)
+                {
+                    _logger.LogWarning("CustomerAddresses list is null");
+                    return NotFound();
+                }
+                var customerAddress = await _context.CustomerAddresses.FindAsync(id);
+                if (customerAddress == null)
+                {
+                    _logger.LogWarning($"Customer address with ID {id} not found");
+                    return NotFound();
+                }
+
+                _context.CustomerAddresses.Remove(customerAddress);
+                await _context.SaveChangesAsync();
+
             }
-            var customerAddress = await _context.CustomerAddresses.FindAsync(id);
-            if (customerAddress == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError($"An error occurred while deleting customer address with ID {id}: {ex.Message}");
             }
-
-            _context.CustomerAddresses.Remove(customerAddress);
-            await _context.SaveChangesAsync();
-
+            
             return NoContent();
         }
 

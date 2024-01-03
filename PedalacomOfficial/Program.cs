@@ -2,44 +2,68 @@ using Microsoft.EntityFrameworkCore;
 using PedalacomOfficial;
 using PedalacomOfficial.Data;
 using PedalacomOfficial.Models;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AdventureWorksLt2019Context>(options =>
-
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PedalacomConnectionString"))
-);
+using System.Reflection.Metadata;
+using NLog;
+using NLog.Web;
 
 
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Debug("init main");
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var builder = WebApplication.CreateBuilder(args);
+    // Add services to the container.
+
+    builder.Services.AddControllers();
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    //NLog: Setup NLog for Dependency injection
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
+
+    builder.Services.AddDbContext<AdventureWorksLt2019Context>(options =>
+
+        options.UseSqlServer(builder.Configuration.GetConnectionString("PedalacomConnectionString"))
+    );
+
+
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseCors(options =>
+    {
+        options.AllowAnyHeader();
+        options.AllowAnyOrigin();
+        options.AllowAnyMethod();
+    }
+    );
+
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
+
 }
-
-app.UseHttpsRedirection();
-
-app.UseCors(options =>
+catch (Exception exception)
 {
-    options.AllowAnyHeader();
-    options.AllowAnyOrigin();
-    options.AllowAnyMethod();
+    logger.Error(exception, "Stopped program because of exception");
+    throw;
 }
-);
-
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    NLog.LogManager.Shutdown();
+}

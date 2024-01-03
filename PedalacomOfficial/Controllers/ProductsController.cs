@@ -86,15 +86,23 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-          if (_context.Products == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.Products'  is null.");
-          }
+            if (_context.Products == null)
+            {
+                return Problem("Entity set 'AdventureWorksLt2019Context.Products' is null.");
+            }
+
+            // Assegna un nuovo GUID al rowguid del prodotto
+            product.Rowguid= Guid.NewGuid();
+
+            // Imposta la data odierna
+            product.ModifiedDate = DateTime.Now; // Sostituisci YourDateFieldName con il nome del tuo campo data
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
+
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]

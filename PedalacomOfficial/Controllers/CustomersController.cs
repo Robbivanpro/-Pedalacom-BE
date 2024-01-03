@@ -60,7 +60,23 @@ namespace PedalacomOfficial.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
+            var existingCostumer = _context.Customers.FirstOrDefault(x => x.CustomerId == id);
+
+            if (existingCostumer == null)
+            {
+                return NotFound();
+            }
+
+            existingCostumer.Title = customer.Title;
+            existingCostumer.FirstName = customer.FirstName;
+            existingCostumer.MiddleName = customer.MiddleName;
+            existingCostumer.LastName = customer.LastName;
+            existingCostumer.Suffix = customer.Suffix;
+            existingCostumer.CompanyName = customer.CompanyName;
+            existingCostumer.SalesPerson = customer.SalesPerson;
+            existingCostumer.EmailAddress = customer.EmailAddress;
+            existingCostumer.PasswordHash = customer.PasswordHash;
+            existingCostumer.PasswordSalt = customer.PasswordSalt;
 
             try
             {
@@ -70,7 +86,7 @@ namespace PedalacomOfficial.Controllers
             {
                 if (!CustomerExists(id))
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
                 else
                 {
@@ -78,7 +94,10 @@ namespace PedalacomOfficial.Controllers
                 }
             }
 
+
+
             return NoContent();
+
         }
 
         // POST: api/Customers
@@ -86,15 +105,30 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-          if (_context.Customers == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.Customers'  is null.");
-          }
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            // Imposta il Rowguid con un nuovo GUID
+            customer.Rowguid = Guid.NewGuid();
 
+            // Imposta la data di modifica corrente
+            customer.ModifiedDate = DateTime.UtcNow;
+
+            // Aggiungi il nuovo cliente al contesto
+            _context.Customers.Add(customer);
+
+            try
+            {
+                // Salva le modifiche nel contesto (cioè nel database)
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Gestisci eventuali eccezioni specifiche che potrebbero verificarsi durante il salvataggio
+                return StatusCode(500, "An error occurred while saving the customer");
+            }
+
+            // Restituisci un risultato di creazione con l'oggetto Customer e l'URL per accedervi
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
+
 
         // DELETE: api/Customers/5
         [HttpDelete("{id}")]

@@ -15,20 +15,30 @@ namespace PedalacomOfficial.Controllers
     public class ProductDescriptionsController : ControllerBase
     {
         private readonly AdventureWorksLt2019Context _context;
-
-        public ProductDescriptionsController(AdventureWorksLt2019Context context)
+        private readonly ILogger<ProductDescriptionsController> _logger;
+        public ProductDescriptionsController(AdventureWorksLt2019Context context, ILogger<ProductDescriptionsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/ProductDescriptions
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDescription>>> GetProductDescriptions()
         {
-          if (_context.ProductDescriptions == null)
-          {
-              return NotFound();
-          }
+            try
+            {
+                _logger.LogInformation("Getting all product descriptions");
+                if (_context.ProductDescriptions == null)
+                {
+                    _logger.LogWarning("Product descriptions list is null");
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting all product descriptions: {ex.Message}");
+            }
             return await _context.ProductDescriptions.ToListAsync();
         }
 
@@ -36,18 +46,29 @@ namespace PedalacomOfficial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDescription>> GetProductDescription(int id)
         {
-          if (_context.ProductDescriptions == null)
-          {
-              return NotFound();
-          }
-            var productDescription = await _context.ProductDescriptions.FindAsync(id);
-
-            if (productDescription == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Getting product description with ID: {id}");
+                if (_context.ProductDescriptions == null)
+                {
+                    _logger.LogWarning("Product descriptions list is null");
+                    return NotFound();
+                }
+                var productDescription = await _context.ProductDescriptions.FindAsync(id);
 
-            return productDescription;
+                if (productDescription == null)
+                {
+                    _logger.LogWarning($"Product description with ID {id} not found");
+                    return NotFound();
+                }
+
+                return productDescription;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting product description with ID {id}: {ex.Message}");
+            }
+          return NotFound();
         }
 
         // PUT: api/ProductDescriptions/5
@@ -55,15 +76,16 @@ namespace PedalacomOfficial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProductDescription(int id, ProductDescription productDescription)
         {
-            if (id != productDescription.ProductDescriptionId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(productDescription).State = EntityState.Modified;
-
             try
             {
+                _logger.LogInformation($"Updating product description with ID: {id}");
+                if (id != productDescription.ProductDescriptionId)
+                {
+                    _logger.LogError("Bad request - ID mismatch");
+                    return BadRequest();
+                }
+
+                _context.Entry(productDescription).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -77,6 +99,10 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
+            catch(Exception ex)
+            {
+                _logger.LogError($"An error occurred while updating product description with ID {id}: {ex.Message}");
+            }
 
             return NoContent();
         }
@@ -86,12 +112,34 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductDescription>> PostProductDescription(ProductDescription productDescription)
         {
-          if (_context.ProductDescriptions == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.ProductDescriptions'  is null.");
-          }
-            _context.ProductDescriptions.Add(productDescription);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _logger.LogInformation("Creating a new product description");
+                if (_context.ProductDescriptions == null)
+                {
+                    _logger.LogWarning("Product descriptions list is null");
+                    return Problem("Entity set 'AdventureWorksLt2019Context.ProductDescriptions'  is null.");
+                }
+                _context.ProductDescriptions.Add(productDescription);
+                await _context.SaveChangesAsync();
+
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError($"A database update exception occurred while creating a new product description: {ex.Message}");
+                if (ProductDescriptionExists(productDescription.ProductDescriptionId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while creating a new product description: {ex.Message}");
+            }
 
             return CreatedAtAction("GetProductDescription", new { id = productDescription.ProductDescriptionId }, productDescription);
         }
@@ -100,19 +148,30 @@ namespace PedalacomOfficial.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductDescription(int id)
         {
-            if (_context.ProductDescriptions == null)
+            try
             {
-                return NotFound();
+                _logger.LogInformation($"Deleting product description with ID: {id}");
+                if (_context.ProductDescriptions == null)
+                {
+                    _logger.LogWarning("Product descriptions list is null");
+                    return NotFound();
+                }
+                var productDescription = await _context.ProductDescriptions.FindAsync(id);
+                if (productDescription == null)
+                {
+                    _logger.LogWarning($"Product description with ID {id} not found");
+                    return NotFound();
+                }
+
+                _context.ProductDescriptions.Remove(productDescription);
+                await _context.SaveChangesAsync();
+
             }
-            var productDescription = await _context.ProductDescriptions.FindAsync(id);
-            if (productDescription == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError($"An error occurred while deleting product description with ID {id}: {ex.Message}");
             }
-
-            _context.ProductDescriptions.Remove(productDescription);
-            await _context.SaveChangesAsync();
-
+            
             return NoContent();
         }
 

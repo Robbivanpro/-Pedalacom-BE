@@ -15,20 +15,31 @@ namespace PedalacomOfficial.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly AdventureWorksLt2019Context _context;
-
-        public CustomersController(AdventureWorksLt2019Context context)
+        private readonly ILogger<CustomersController> _logger;
+        public CustomersController(AdventureWorksLt2019Context context, ILogger<CustomersController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Customers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
-          if (_context.Customers == null)
-          {
-              return NotFound();
-          }
+            try
+            {
+                _logger.LogInformation("Getting all customers");
+                if (_context.Customers == null)
+                {
+                    _logger.LogWarning("Customers list is null");
+                    return NotFound();
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting all customers: {ex.Message}");
+            }
             return await _context.Customers.ToListAsync();
         }
 
@@ -36,18 +47,29 @@ namespace PedalacomOfficial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
-          if (_context.Customers == null)
-          {
-              return NotFound();
-          }
-            var customer = await _context.Customers.FindAsync(id);
-
-            if (customer == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Getting customer with ID: {id}");
+                if (_context.Customers == null)
+                {
+                    _logger.LogWarning("Customers list is null");
+                    return NotFound();
+                }
+                var customer = await _context.Customers.FindAsync(id);
 
-            return customer;
+                if (customer == null)
+                {
+                    _logger.LogWarning($"Customer with ID {id} not found");
+                    return NotFound();
+                }
+
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting customer with ID {id}: {ex.Message}");
+            }
+          return NotFound();
         }
 
         // PUT: api/Customers/5
@@ -55,33 +77,39 @@ namespace PedalacomOfficial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
-            if (id != customer.CustomerId)
-            {
-                return BadRequest();
-            }
-
-            var existingCostumer = _context.Customers.FirstOrDefault(x => x.CustomerId == id);
-
-            if (existingCostumer == null)
-            {
-                return NotFound();
-            }
-
-            existingCostumer.Title = customer.Title;
-            existingCostumer.FirstName = customer.FirstName;
-            existingCostumer.MiddleName = customer.MiddleName;
-            existingCostumer.LastName = customer.LastName;
-            existingCostumer.Suffix = customer.Suffix;
-            existingCostumer.CompanyName = customer.CompanyName;
-            existingCostumer.SalesPerson = customer.SalesPerson;
-            existingCostumer.EmailAddress = customer.EmailAddress;
-            existingCostumer.PasswordHash = customer.PasswordHash;
-            existingCostumer.PasswordSalt = customer.PasswordSalt;
-
             try
             {
+                _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Updating customer with ID: {id}");
+                if (id != customer.CustomerId)
+                {
+                    _logger.LogError("Bad request - ID mismatch");
+                    return BadRequest();
+                }
+
+                var existingCostumer = _context.Customers.FirstOrDefault(x => x.CustomerId == id);
+
+                if (existingCostumer == null)
+                {
+                    return NotFound();
+                }
+
+                existingCostumer.Title = customer.Title;
+                existingCostumer.FirstName = customer.FirstName;
+                existingCostumer.MiddleName = customer.MiddleName;
+                existingCostumer.LastName = customer.LastName;
+                existingCostumer.Suffix = customer.Suffix;
+                existingCostumer.CompanyName = customer.CompanyName;
+                existingCostumer.SalesPerson = customer.SalesPerson;
+                existingCostumer.EmailAddress = customer.EmailAddress;
+                existingCostumer.PasswordHash = customer.PasswordHash;
+                existingCostumer.PasswordSalt = customer.PasswordSalt;
+
             }
+
+
             catch (DbUpdateConcurrencyException)
             {
                 if (!CustomerExists(id))
@@ -93,12 +121,20 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Concurrency exception while updating customer with ID {id}: {ex.Message}");
+            }
 
 
 
-            return NoContent();
+                return NoContent();
 
-        }
+            }
+            
+            
+
+            
 
         // POST: api/Customers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -124,8 +160,36 @@ namespace PedalacomOfficial.Controllers
                 // Gestisci eventuali eccezioni specifiche che potrebbero verificarsi durante il salvataggio
                 return StatusCode(500, "An error occurred while saving the customer");
             }
+            try
+            {
+                _logger.LogInformation("Creating a new customer");
+                if (_context.Customers == null)
+                {
+                    _logger.LogWarning("Customers list is null");
+                    return Problem("Entity set 'AdventureWorksLt2019Context.Customers'  is null.");
+                }
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();
 
             // Restituisci un risultato di creazione con l'oggetto Customer e l'URL per accedervi
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError($"A database update exception occurred while creating a new customer: {ex.Message}");
+                if (CustomerExists(customer.CustomerId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while creating a new customer: {ex.Message}");
+            }
+          
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
@@ -134,19 +198,30 @@ namespace PedalacomOfficial.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            if (_context.Customers == null)
+            try
             {
-                return NotFound();
+                _logger.LogInformation($"Deleting customer with ID: {id}");
+                if (_context.Customers == null)
+                {
+                    _logger.LogWarning("Customers list is null");
+                    return NotFound();
+                }
+                var customer = await _context.Customers.FindAsync(id);
+                if (customer == null)
+                {
+                    _logger.LogWarning($"Customer with ID {id} not found");
+                    return NotFound();
+                }
+
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+
             }
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError($"An error occurred while deleting customer with ID {id}: {ex.Message}");
             }
-
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
-
+            
             return NoContent();
         }
 

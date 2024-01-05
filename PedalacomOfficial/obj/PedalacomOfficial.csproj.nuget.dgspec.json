@@ -67,6 +67,18 @@
               "target": "Package",
               "version": "[6.0.16, )"
             },
+            "NLog": {
+              "target": "Package",
+              "version": "[5.2.8, )"
+            },
+            "NLog.Database": {
+              "target": "Package",
+              "version": "[5.2.8, )"
+            },
+            "NLog.Web.AspNetCore": {
+              "target": "Package",
+              "version": "[5.3.8, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"

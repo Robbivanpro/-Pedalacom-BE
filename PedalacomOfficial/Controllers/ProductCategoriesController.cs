@@ -15,20 +15,32 @@ namespace PedalacomOfficial.Controllers
     public class ProductCategoriesController : ControllerBase
     {
         private readonly AdventureWorksLt2019Context _context;
+        private readonly ILogger<ProductCategoriesController> _logger;
 
-        public ProductCategoriesController(AdventureWorksLt2019Context context)
+        public ProductCategoriesController(AdventureWorksLt2019Context context, ILogger<ProductCategoriesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/ProductCategories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductCategory>>> GetProductCategories()
         {
-          if (_context.ProductCategories == null)
-          {
-              return NotFound();
-          }
+            try
+            {
+                _logger.LogInformation("Getting all product categories");
+                if (_context.ProductCategories == null)
+                {
+                    _logger.LogWarning("Product categories list is null");
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting all product categories: {ex.Message}");
+            }
+         
             return await _context.ProductCategories.ToListAsync();
         }
 
@@ -36,18 +48,29 @@ namespace PedalacomOfficial.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductCategory>> GetProductCategory(int id)
         {
-          if (_context.ProductCategories == null)
-          {
-              return NotFound();
-          }
-            var productCategory = await _context.ProductCategories.FindAsync(id);
-
-            if (productCategory == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Getting product category with ID: {id}");
+                if (_context.ProductCategories == null)
+                {
+                    _logger.LogWarning("Product categories list is null");
+                    return NotFound();
+                }
+                var productCategory = await _context.ProductCategories.FindAsync(id);
 
-            return productCategory;
+                if (productCategory == null)
+                {
+                    _logger.LogWarning($"Product category with ID {id} not found");
+                    return NotFound();
+                }
+
+                return productCategory;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while getting product category with ID {id}: {ex.Message}");
+            }
+          return NotFound();    
         }
 
         // PUT: api/ProductCategories/5
@@ -55,15 +78,18 @@ namespace PedalacomOfficial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProductCategory(int id, ProductCategory productCategory)
         {
-            if (id != productCategory.ProductCategoryId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(productCategory).State = EntityState.Modified;
-
+           
             try
             {
+                _logger.LogInformation($"Updating product category with ID: {id}");
+                if (id != productCategory.ProductCategoryId)
+                {
+                    _logger.LogError("Bad request - ID mismatch");
+                    return BadRequest();
+                }
+
+                _context.Entry(productCategory).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -77,6 +103,10 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while updating product category with ID {id}: {ex.Message}");
+            }
 
             return NoContent();
         }
@@ -86,12 +116,33 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductCategory>> PostProductCategory(ProductCategory productCategory)
         {
-          if (_context.ProductCategories == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.ProductCategories'  is null.");
-          }
-            _context.ProductCategories.Add(productCategory);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _logger.LogInformation("Creating a new product category");
+                if (_context.ProductCategories == null)
+                {
+                    _logger.LogWarning("Product categories list is null");
+                    return Problem("Entity set 'AdventureWorksLt2019Context.ProductCategories'  is null.");
+                }
+                _context.ProductCategories.Add(productCategory);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError($"A database update exception occurred while creating a new product category: {ex.Message}");
+                if (ProductCategoryExists(productCategory.ProductCategoryId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while creating a new product category: {ex.Message}");
+            }
 
             return CreatedAtAction("GetProductCategory", new { id = productCategory.ProductCategoryId }, productCategory);
         }
@@ -100,18 +151,29 @@ namespace PedalacomOfficial.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductCategory(int id)
         {
-            if (_context.ProductCategories == null)
+            try
             {
-                return NotFound();
-            }
-            var productCategory = await _context.ProductCategories.FindAsync(id);
-            if (productCategory == null)
-            {
-                return NotFound();
-            }
+                _logger.LogInformation($"Deleting product category with ID: {id}");
+                if (_context.ProductCategories == null)
+                {
+                    _logger.LogWarning("Product categories list is null");
+                    return NotFound();
+                }
+                var productCategory = await _context.ProductCategories.FindAsync(id);
+                if (productCategory == null)
+                {
+                    _logger.LogWarning($"Product category with ID {id} not found");
+                    return NotFound();
+                }
 
-            _context.ProductCategories.Remove(productCategory);
-            await _context.SaveChangesAsync();
+                _context.ProductCategories.Remove(productCategory);
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while deleting product category with ID {id}: {ex.Message}");
+            }
 
             return NoContent();
         }

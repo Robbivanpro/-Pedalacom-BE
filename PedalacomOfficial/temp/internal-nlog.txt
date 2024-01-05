@@ -1,0 +1,21 @@
+2024-01-02 16:32:23.3031 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Failed to create Target with unknown type-alias: 'Database' - Extension NLog.Database not included?
+   at NLog.Config.FactoryExtensions.CreateInstance[TBaseType](IFactory`1 factory, String typeAlias)
+   at NLog.Config.LoggingConfigurationParser.FactoryCreateInstance[T](String typeName, IFactory`1 factory)
+2024-01-02 16:32:23.4939 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'db' not found for logging rule: *.
+2024-01-02 16:32:23.5066 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.2.8.2366. Product version: 5.2.8+f586f1341c46fa38aaaff4c641e7f0fa7e813943. GlobalAssemblyCache: False
+2024-01-02 16:32:23.5302 Info Validating config: Targets=0, ConfigItems=2, FilePath=C:\Users\rosma\Desktop\-Pedalacom-BE\PedalacomOfficial\bin\Debug\net6.0\NLog.config
+2024-01-02 16:32:23.5302 Info Configuration initialized.
+2024-01-02 16:34:07.3167 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Failed to create Target with unknown type-alias: 'Database' - Extension NLog.Database not included?
+   at NLog.Config.FactoryExtensions.CreateInstance[TBaseType](IFactory`1 factory, String typeAlias)
+   at NLog.Config.LoggingConfigurationParser.FactoryCreateInstance[T](String typeName, IFactory`1 factory)
+2024-01-02 16:34:07.3746 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'db' not found for logging rule: *.
+2024-01-02 16:34:07.3876 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.2.8.2366. Product version: 5.2.8+f586f1341c46fa38aaaff4c641e7f0fa7e813943. GlobalAssemblyCache: False
+2024-01-02 16:34:07.4085 Info Validating config: Targets=0, ConfigItems=2, FilePath=C:\Users\rosma\Desktop\-Pedalacom-BE\PedalacomOfficial\bin\Debug\net6.0\NLog.config
+2024-01-02 16:34:07.4085 Info Configuration initialized.
+2024-01-02 16:35:43.1133 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Failed to create Target with unknown type-alias: 'Database' - Extension NLog.Database not included?
+   at NLog.Config.FactoryExtensions.CreateInstance[TBaseType](IFactory`1 factory, String typeAlias)
+   at NLog.Config.LoggingConfigurationParser.FactoryCreateInstance[T](String typeName, IFactory`1 factory)
+2024-01-02 16:35:43.1626 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'db' not found for logging rule: *.
+2024-01-02 16:35:43.1626 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.2.8.2366. Product version: 5.2.8+f586f1341c46fa38aaaff4c641e7f0fa7e813943. GlobalAssemblyCache: False
+2024-01-02 16:35:43.2128 Info Validating config: Targets=0, ConfigItems=2, FilePath=C:\Users\rosma\Desktop\-Pedalacom-BE\PedalacomOfficial\bin\Debug\net6.0\NLog.config
+2024-01-02 16:35:43.2128 Info Configuration initialized.

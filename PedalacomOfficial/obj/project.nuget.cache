@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4ljPgWnSdZMZjJcq6+TTriiK0Q0SyNDlqnIztfwmuE+HdufC/k52mpSofKU/jTdMnq16rZWf6kzgCMu2IzsUyQ==",
+  "dgSpecHash": "PrK/jG6tqREZAqpiuXMeDvvNYDyV+/uiCs3ct1PrcMME/4AqY3qr57kqTaNY25W/fbOjMLn7/Kn4UX38IUAl/g==",
   "success": true,
   "projectFilePath": "C:\\Users\\rober\\Desktop\\Betacom Accademy 2\\Pedalacom\\Pedalacom.API\\PedalacomOfficial\\PedalacomOfficial.csproj",
   "expectedPackageFiles": [
@@ -127,6 +127,10 @@
     "C:\\Users\\rober\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\netstandard.library\\1.6.1\\netstandard.library.1.6.1.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\nlog\\5.2.8\\nlog.5.2.8.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\nlog.database\\5.2.8\\nlog.database.5.2.8.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\nlog.extensions.logging\\5.3.8\\nlog.extensions.logging.5.3.8.nupkg.sha512",
+    "C:\\Users\\rober\\.nuget\\packages\\nlog.web.aspnetcore\\5.3.8\\nlog.web.aspnetcore.5.3.8.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\nuget.common\\6.6.1\\nuget.common.6.6.1.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\nuget.configuration\\6.6.1\\nuget.configuration.6.6.1.nupkg.sha512",
     "C:\\Users\\rober\\.nuget\\packages\\nuget.dependencyresolver.core\\6.6.1\\nuget.dependencyresolver.core.6.6.1.nupkg.sha512",

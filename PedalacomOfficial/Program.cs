@@ -20,7 +20,7 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    //NLog: Setup NLog for Dependency injection
+    //NLog
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 

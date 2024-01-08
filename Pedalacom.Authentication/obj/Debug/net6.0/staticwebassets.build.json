@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "jpiG0Idgb/67OhQpZEftedBW/+kYtY6YfgyEkwzzeVI=",
+  "Source": "Pedalacom.Authentication",
+  "BasePath": "_content/Pedalacom.Authentication",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\rosma\\Documents\\GitHub\\-Pedalacom-BE\\PedalacomOfficial\\PedalacomOfficial.csproj",
+      "Version": 2,
+      "Source": "PedalacomOfficial",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

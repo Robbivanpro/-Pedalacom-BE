@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PedalacomOfficial.Data;
 using PedalacomOfficial.Models;
+using PedalacomOfficial.Models.DTO;
 
 namespace PedalacomOfficial.Controllers
 {
@@ -25,7 +26,7 @@ namespace PedalacomOfficial.Controllers
 
         // GET: api/ProductCategories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductCategory>>> GetProductCategories()
+        public async Task<ActionResult<IEnumerable<ProductCategoryDTO>>> GetProductCategories()
         {
             try
             {
@@ -35,13 +36,26 @@ namespace PedalacomOfficial.Controllers
                     _logger.LogWarning("Product categories list is null");
                     return NotFound();
                 }
+
+                var categories = await _context.ProductCategories.ToListAsync();
+
+                // Mappatura manuale da ProductCategory a ProductCategoryDto
+                var categoryDtos = categories.Select(c => new ProductCategoryDTO
+                {
+                    ProductCategoryId = c.ProductCategoryId,
+                    ParentProductCategoryId = c.ParentProductCategoryId,
+                    Name = c.Name,
+                    ModifiedDate = c.ModifiedDate
+                    // Aggiungi altre proprietà se necessario
+                }).ToList();
+
+                return categoryDtos;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while getting all product categories: {ex.Message}");
+                return StatusCode(500, "Internal server error");
             }
-         
-            return await _context.ProductCategories.ToListAsync();
         }
 
         // GET: api/ProductCategories/5
@@ -76,75 +90,79 @@ namespace PedalacomOfficial.Controllers
         // PUT: api/ProductCategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProductCategory(int id, ProductCategory productCategory)
+        public async Task<IActionResult> PutProductCategory(int id, ProductCategoryUpdate productCategoryUpdate)
         {
-           
+            if (id != productCategoryUpdate.ProductCategoryId)
+            {
+                _logger.LogError($"Bad request - ID mismatch. Path ID: {id}, DTO ID: {productCategoryUpdate.ProductCategoryId}");
+                return BadRequest("ID mismatch");
+            }
+
+            var existingProductCategory = await _context.ProductCategories.FirstOrDefaultAsync(x => x.ProductCategoryId == id);
+
+            if (existingProductCategory == null)
+            {
+                _logger.LogWarning($"ProductCategory with ID {id} not found");
+                return NotFound();
+            }
+
+            existingProductCategory.Name = productCategoryUpdate.Name;
+            
+
             try
             {
-                _logger.LogInformation($"Updating product category with ID: {id}");
-                if (id != productCategory.ProductCategoryId)
-                {
-                    _logger.LogError("Bad request - ID mismatch");
-                    return BadRequest();
-                }
-
-                _context.Entry(productCategory).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!ProductCategoryExists(id))
                 {
+                    _logger.LogWarning($"ProductCategory with ID {id} not found during DbUpdateConcurrencyException. Exception: {ex.Message}");
                     return NotFound();
                 }
                 else
                 {
+                    _logger.LogError($"DbUpdateConcurrencyException while updating ProductCategory with ID {id}: {ex.Message}");
                     throw;
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while updating product category with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
             }
 
             return NoContent();
         }
 
+
         // POST: api/ProductCategories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ProductCategory>> PostProductCategory(ProductCategory productCategory)
+        public async Task<ActionResult<ProductCategoryDTO>> PostProductCategory(ProductCategoryDTO productCategoryDTO)
         {
-            try
-            {
-                _logger.LogInformation("Creating a new product category");
-                if (_context.ProductCategories == null)
-                {
-                    _logger.LogWarning("Product categories list is null");
-                    return Problem("Entity set 'AdventureWorksLt2019Context.ProductCategories'  is null.");
-                }
-                _context.ProductCategories.Add(productCategory);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError($"A database update exception occurred while creating a new product category: {ex.Message}");
-                if (ProductCategoryExists(productCategory.ProductCategoryId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An error occurred while creating a new product category: {ex.Message}");
-            }
+            // Genera un nuovo Rowguid
+            productCategoryDTO.Rowguid = Guid.NewGuid();
 
-            return CreatedAtAction("GetProductCategory", new { id = productCategory.ProductCategoryId }, productCategory);
+
+            // Mappatura del DTO all'entità ProductCategory
+            var productCategory = new ProductCategory
+            {
+                
+                
+                Name = productCategoryDTO.Name,
+                Rowguid = productCategoryDTO.Rowguid,
+                ModifiedDate = productCategoryDTO.ModifiedDate,
+                
+            };
+
+            _context.ProductCategories.Add(productCategory);
+            await _context.SaveChangesAsync();
+
+            // Aggiornare il DTO con l'ID generato dal database
+            productCategoryDTO.ProductCategoryId = productCategory.ProductCategoryId;
+
+            return CreatedAtAction("GetProductCategory", new { id = productCategory.ProductCategoryId }, productCategoryDTO);
         }
 
         // DELETE: api/ProductCategories/5

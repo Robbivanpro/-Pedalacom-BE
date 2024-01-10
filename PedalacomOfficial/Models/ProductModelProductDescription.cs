@@ -23,7 +23,7 @@ public partial class ProductModelProductDescription
     /// </summary>
     public string Culture { get; set; } = null!;
 
-    public Guid Rowguid { get; set; }
+    public Guid Rowguid { get; set; } = new Guid();
 
     /// <summary>
     /// Date and time the record was last updated.

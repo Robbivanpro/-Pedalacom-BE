@@ -76,40 +76,87 @@ namespace PedalacomOfficial.Controllers
 
         // PUT: api/CustomerAddresses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomerAddress(int id, CustomerAddress customerAddress)
+        [HttpPut("{customerId}/{addressId}")]
+        public IActionResult UpdateCustomerAndAddress(int customerId, int addressId, [FromBody] CustomerAddressDTO customerAddressDTO)
         {
-            try
+            if (customerAddressDTO == null)
             {
-                _logger.LogInformation($"Updating customer address with ID: {id}");
-                if (id != customerAddress.CustomerId)
-                {
-                    _logger.LogError("Bad request - ID mismatch");
-                    return BadRequest();
-                }
-
-                _context.Entry(customerAddress).State = EntityState.Modified;
-
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CustomerAddressExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Concurrency exception while updating customer address with ID {id}: {ex.Message}");
+                _logger.LogError("UpdateCustomerAndAddress chiamato con DTO null.");
+                return BadRequest("Il DTO non può essere null.");
             }
 
-            return NoContent();
+            _logger.LogInformation($"Inizio aggiornamento per CustomerId: {customerId}, AddressId: {addressId}");
+
+            if (customerAddressDTO.CustomerId != customerId || customerAddressDTO.AddressId != addressId)
+            {
+                _logger.LogWarning("Gli ID nel DTO non corrispondono agli ID nella richiesta.");
+                return BadRequest("Gli ID nel DTO non corrispondono agli ID nella richiesta.");
+            }
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == customerId);
+                    var address = _context.Addresses.FirstOrDefault(a => a.AddressId == addressId);
+
+                    if (customer == null || address == null)
+                    {
+                        _logger.LogWarning($"Customer o Address non trovato per CustomerId: {customerId}, AddressId: {addressId}.");
+                        return NotFound("Customer o Address non trovato.");
+                    }
+
+                    // Aggiorna il Customer esistente
+                    _logger.LogInformation($"Aggiornamento Customer con ID: {customerId}");
+                    customer.FirstName = customerAddressDTO.FirstName;
+                    customer.Title = customerAddressDTO.Title;
+                    customer.MiddleName = customerAddressDTO.MiddleName;
+                    customer.LastName = customerAddressDTO.LastName;
+                    customer.Suffix = customerAddressDTO.Suffix;
+                    customer.CompanyName = customerAddressDTO.CompanyName;
+                    customer.EmailAddress = customerAddressDTO.EmailAddress;
+                    customer.Phone = customerAddressDTO.Phone;
+
+
+
+                    // Aggiorna l'Address esistente
+                    _logger.LogInformation($"Aggiornamento Address con ID: {addressId}");
+                    address.City = customerAddressDTO.City;
+                    address.AddressLine1 = customerAddressDTO.AddressLine1;
+                    address.AddressLine2 = customerAddressDTO.AddressLine2;
+                    address.StateProvince = customerAddressDTO.StateProvince;
+                    address.CountryRegion = customerAddressDTO.CountryRegion;
+                    address.PostalCode = customerAddressDTO.PostalCode;
+
+                    var customerAddress = _context.CustomerAddresses.FirstOrDefault(ca => ca.CustomerId == customerId && ca.AddressId == addressId);
+
+                    if (customerAddress != null)
+                    {
+                        _logger.LogInformation($"Aggiornamento CustomerAddress per CustomerId: {customerId}, AddressId: {addressId}");
+                        customerAddress.AddressType = customerAddressDTO.AddressType;
+                        customerAddress.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"CustomerAddress non trovato per CustomerId: {customerId}, AddressId: {addressId}.");
+                    }
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+
+                    _logger.LogInformation("Customer, Address e CustomerAddress aggiornati con successo");
+                    return Ok("Customer, Address e CustomerAddress aggiornati con successo");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Errore durante l'aggiornamento per CustomerId: {customerId}, AddressId: {addressId}: {ex.Message}");
+                    transaction.Rollback();
+                    return BadRequest($"Errore durante l'aggiornamento: {ex.Message}");
+                }
+            }
         }
+
+
 
         // POST: api/CustomerAddresses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

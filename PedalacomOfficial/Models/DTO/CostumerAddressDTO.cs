@@ -27,6 +27,11 @@ public class CustomerAddressDTO
     public string CountryRegion { get; set; }
     public string PostalCode { get; set; }
 
+
+
     // Altre proprietà comuni
     public DateTime ModifiedDate { get; set; }
+
+    public string AddressType { get; set; } = null!;
+
 }

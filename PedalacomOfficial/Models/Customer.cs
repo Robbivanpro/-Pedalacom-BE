@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace PedalacomOfficial.Models;
 
@@ -76,6 +77,8 @@ public partial class Customer
     /// <summary>
     /// ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
     /// </summary>
+
+    [JsonIgnore]
     public Guid Rowguid { get; set; }
 
     /// <summary>

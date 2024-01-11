@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.Xml;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +14,17 @@ namespace PedalacomOfficial.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
+    
+
     public class ProductModelsController : ControllerBase
     {
         private readonly AdventureWorksLt2019Context _context;
 
-        public ProductModelsController(AdventureWorksLt2019Context context)
+        private readonly ILogger<ProductModelsController> _logger;
+        public ProductModelsController(AdventureWorksLt2019Context context, ILogger<ProductModelsController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -55,30 +62,12 @@ namespace PedalacomOfficial.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProductModel(int id, ProductModel productModel)
         {
-            if (id != productModel.ProductModelId)
-            {
-                return BadRequest();
-            }
+            return NotFound();
+        }
 
-            _context.Entry(productModel).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+        private bool ProductModelExists(int id)
+        {
+            return _context.ProductModels.Any(e => e.ProductModelId == id);
         }
 
         // POST: api/ProductModels
@@ -86,15 +75,39 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductModel>> PostProductModel(ProductModel productModel)
         {
-          if (_context.ProductModels == null)
-          {
-              return Problem("Entity set 'AdventureWorksLt2019Context.ProductModels'  is null.");
-          }
+            if (_context.ProductModels == null)
+            {
+                return Problem("Entity set '_context.ProductModels' is null.");
+            }
+
+            // Assicurati che CatalogDescription sia formattato secondo lo schema richiesto
+            productModel.CatalogDescription = $@"
+            <?xml-stylesheet href='ProductDescription.xsl' type='text/xsl'?>
+             <p1:ProductDescription xmlns:p1='http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription'
+                           xmlns:wm='http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain'
+                           xmlns:wf='http://www.adventure-works.com/schemas/OtherFeatures'
+                           xmlns:html='http://www.w3.org/1999/xhtml'
+                           ProductModelID='{productModel.ProductModelId}'
+                           ProductModelName='{System.Security.SecurityElement.Escape(productModel.Name)}'>
+             <p1:Summary>
+             <html:p>{System.Security.SecurityElement.Escape(productModel.CatalogDescription)}</html:p>
+             </p1:Summary>
+             <!-- Aggiungi altri elementi XML conformi allo schema qui -->
+             </p1:ProductDescription>";
+
             _context.ProductModels.Add(productModel);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, "A database error occurred: " + ex.InnerException?.Message);
+            }
 
             return CreatedAtAction("GetProductModel", new { id = productModel.ProductModelId }, productModel);
         }
+
 
         // DELETE: api/ProductModels/5
         [HttpDelete("{id}")]
@@ -114,11 +127,6 @@ namespace PedalacomOfficial.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool ProductModelExists(int id)
-        {
-            return (_context.ProductModels?.Any(e => e.ProductModelId == id)).GetValueOrDefault();
         }
     }
 }

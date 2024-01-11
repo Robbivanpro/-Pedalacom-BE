@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PedalacomOfficial.Data;
 using PedalacomOfficial.Models;
+using PedalacomOfficial.Models.DTO;
 
 namespace PedalacomOfficial.Controllers
 {
@@ -112,40 +114,120 @@ namespace PedalacomOfficial.Controllers
         // POST: api/CustomerAddresses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CustomerAddress>> PostCustomerAddress(CustomerAddress customerAddress)
+        public IActionResult UpdateCustomerAddress([FromBody] CustomerAddressDTO custumerAddressDTO)
         {
-            try
+            if (custumerAddressDTO == null)
             {
-                _logger.LogInformation("Creating a new customer address");
-                if (_context.CustomerAddresses == null)
-                {
-                    _logger.LogWarning("CustomerAddresses list is null");
-                    return Problem("Entity set 'AdventureWorksLt2019Context.CustomerAddresses'  is null.");
-                }
-                _context.CustomerAddresses.Add(customerAddress);
-                await _context.SaveChangesAsync();
+                _logger.LogError("UpdateCustomerAddress chiamato con DTO null.");
+                return BadRequest("Il DTO non può essere null.");
+                
             }
-            catch (DbUpdateException)
+
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                if (CustomerAddressExists(customerAddress.CustomerId))
+                try
                 {
-                    return Conflict();
+                    var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == custumerAddressDTO.CustomerId);
+                    var address = _context.Addresses.FirstOrDefault(a => a.AddressId == custumerAddressDTO.AddressId);
+
+                    _logger.LogInformation("Inizio aggiornamento CustomerAddress");
+
+                    if (customer == null)
+                    {
+                        customer = new Customer { CustomerId = custumerAddressDTO.CustomerId, FirstName = custumerAddressDTO.FirstName, Suffix = custumerAddressDTO.Suffix, MiddleName = custumerAddressDTO.MiddleName, 
+                            LastName = custumerAddressDTO.LastName, EmailAddress = custumerAddressDTO.EmailAddress, Phone = custumerAddressDTO.Phone };
+                        _context.Customers.Add(customer);
+                    }
+
+                    //Creazione del cliente
+                    else
+                    {
+                        // Aggiorna cliente
+                        customer.Title = custumerAddressDTO.Title;
+                        customer.FirstName = custumerAddressDTO.FirstName;
+                        customer.Suffix = custumerAddressDTO.Suffix;
+                        customer.MiddleName = custumerAddressDTO.MiddleName;
+                        customer.LastName = custumerAddressDTO.LastName;
+                        customer.EmailAddress = custumerAddressDTO.EmailAddress;
+                        customer.Phone = custumerAddressDTO.Phone;
+                    }
+                    
+
+                    //Creazione dell'indirizzo
+                    if (address == null)
+                    {
+                        address = new Address
+                        {
+                            AddressId = custumerAddressDTO.AddressId,
+                            City = custumerAddressDTO.City,
+                            AddressLine1 = custumerAddressDTO.AddressLine1,
+                            AddressLine2 = custumerAddressDTO.AddressLine2,
+                            CountryRegion = custumerAddressDTO.CountryRegion,
+                            StateProvince = custumerAddressDTO.StateProvince,
+                            PostalCode = custumerAddressDTO.PostalCode
+                        };
+                        _context.Addresses.Add(address);
+                        
+
+                        
+                    }
+                    else
+                    {
+                        // Aggiorna indirizzo
+                        address.City = custumerAddressDTO.City;
+                        address.AddressLine1 = custumerAddressDTO.AddressLine1;
+                        address.AddressLine2 = custumerAddressDTO.AddressLine2;
+                        address.StateProvince = custumerAddressDTO.StateProvince;
+                        address.CountryRegion = custumerAddressDTO.CountryRegion;
+                        address.PostalCode = custumerAddressDTO.PostalCode;
+
+                    }                  
+
+                    _context.SaveChanges();
+
+                    var customerAddress = _context.CustomerAddresses.FirstOrDefault(ca => ca.CustomerId == customer.CustomerId && ca.AddressId == address.AddressId);
+
+                    if (customerAddress == null )
+                    {
+                        customerAddress = new CustomerAddress 
+                        { 
+                            CustomerId = customer.CustomerId, 
+                            AddressId = address.AddressId, 
+                            ModifiedDate = DateTime.Now, 
+                            AddressType = customerAddress.AddressType
+                        
+                        };
+
+                        _context.CustomerAddresses.Add(customerAddress);
+                    }                    
+                    else
+                    {
+
+
+                        customerAddress.AddressType = customerAddress.AddressType;
+                        customerAddress.ModifiedDate = DateTime.Now;
+
+;
+                    }
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+
+                    _logger.LogInformation("CustomerAddress aggiornato con successo");
+
+                    return Ok("Record aggiornati con successo");
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw;
+                    _logger.LogError(ex, "Errore durante l'aggiornamento di CustomerAddress: " + ex.Message);
+                    transaction.Rollback();
+                    return BadRequest($"Errore durante l'aggiornamento: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An error occurred while creating a new customer address: {ex.Message}");
-            }
-            
-            return CreatedAtAction("GetCustomerAddress", new { id = customerAddress.CustomerId }, customerAddress);
         }
 
-        // DELETE: api/CustomerAddresses/5
-        [HttpDelete("{id}")]
+            // DELETE: api/CustomerAddresses/5
+            [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomerAddress(int id)
         {
             try

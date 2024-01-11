@@ -131,10 +131,10 @@ namespace PedalacomOfficial.Controllers
                 return NoContent();
 
             }
-            
-            
 
-            
+
+
+
 
         // POST: api/Customers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -154,24 +154,9 @@ namespace PedalacomOfficial.Controllers
             {
                 // Salva le modifiche nel contesto (cioè nel database)
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                // Gestisci eventuali eccezioni specifiche che potrebbero verificarsi durante il salvataggio
-                return StatusCode(500, "An error occurred while saving the customer");
-            }
-            try
-            {
-                _logger.LogInformation("Creating a new customer");
-                if (_context.Customers == null)
-                {
-                    _logger.LogWarning("Customers list is null");
-                    return Problem("Entity set 'AdventureWorksLt2019Context.Customers'  is null.");
-                }
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
 
-            // Restituisci un risultato di creazione con l'oggetto Customer e l'URL per accedervi
+                _logger.LogInformation("Creating a new customer");
+                return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
             }
             catch (DbUpdateException ex)
             {
@@ -182,15 +167,14 @@ namespace PedalacomOfficial.Controllers
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(500, "An error occurred while saving the customer");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while creating a new customer: {ex.Message}");
+                return StatusCode(500, "An error occurred while saving the customer");
             }
-          
-            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
 

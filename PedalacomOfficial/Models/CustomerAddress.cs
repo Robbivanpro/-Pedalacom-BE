@@ -1,4 +1,6 @@
-﻿namespace PedalacomOfficial.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace PedalacomOfficial.Models;
 
 /// <summary>
 /// Cross-reference table mapping customers to their address(es).
@@ -23,6 +25,8 @@ public partial class CustomerAddress
     /// <summary>
     /// ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
     /// </summary>
+
+    [JsonIgnore]
     public Guid Rowguid { get; set; }
 
     /// <summary>

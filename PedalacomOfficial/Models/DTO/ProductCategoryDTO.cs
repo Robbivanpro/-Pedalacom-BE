@@ -1,4 +1,6 @@
-﻿namespace PedalacomOfficial.Models.DTO
+﻿using System.Text.Json.Serialization;
+
+namespace PedalacomOfficial.Models.DTO
 {
     public class ProductCategoryDTO
     {
@@ -12,7 +14,7 @@
 
         public string Name { get; set; } = null!;
 
-
+        [JsonIgnore]
         public Guid Rowguid { get; set; }
 
 

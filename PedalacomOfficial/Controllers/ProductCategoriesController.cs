@@ -46,7 +46,6 @@ namespace PedalacomOfficial.Controllers
                     ParentProductCategoryId = c.ParentProductCategoryId,
                     Name = c.Name,
                     ModifiedDate = c.ModifiedDate
-                    // Aggiungi altre proprietà se necessario
                 }).ToList();
 
                 return categoryDtos;
@@ -141,26 +140,44 @@ namespace PedalacomOfficial.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductCategoryDTO>> PostProductCategory(ProductCategoryDTO productCategoryDTO)
         {
-            // Genera un nuovo Rowguid
-            productCategoryDTO.Rowguid = Guid.NewGuid();
+            _logger.LogInformation("Inizio processo di inserimento di una nuova ProductCategory");
 
+            if (productCategoryDTO == null)
+            {
+                _logger.LogError("PostProductCategory chiamato con un DTO null");
+                return BadRequest("Il DTO non può essere null.");
+            }
+
+            // Genera un nuovo Rowguid
+
+            _logger.LogInformation($"Generato Rowguid: {productCategoryDTO.Rowguid} per il nuovo ProductCategory");
 
             // Mappatura del DTO all'entità ProductCategory
             var productCategory = new ProductCategory
             {
-                
-                
                 Name = productCategoryDTO.Name,
-                Rowguid = productCategoryDTO.Rowguid,
                 ModifiedDate = productCategoryDTO.ModifiedDate,
-                
-            };
+                Rowguid = Guid.NewGuid()
+
+        };
 
             _context.ProductCategories.Add(productCategory);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("ProductCategory salvato con successo nel database");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore durante il salvataggio di ProductCategory nel database");
+                return BadRequest("Errore durante il salvataggio nel database");
+            }
 
             // Aggiornare il DTO con l'ID generato dal database
             productCategoryDTO.ProductCategoryId = productCategory.ProductCategoryId;
+
+            _logger.LogInformation($"ProductCategory creato con ID: {productCategory.ProductCategoryId}");
 
             return CreatedAtAction("GetProductCategory", new { id = productCategory.ProductCategoryId }, productCategoryDTO);
         }

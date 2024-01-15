@@ -115,14 +115,18 @@ namespace PedalacomOfficial.Controllers
             try
             {
                 _logger.LogInformation("Creating a new product description");
+
+                // Genera un nuovo Rowguid 
+                productDescription.Rowguid = Guid.NewGuid();
+
                 if (_context.ProductDescriptions == null)
                 {
                     _logger.LogWarning("Product descriptions list is null");
                     return Problem("Entity set 'AdventureWorksLt2019Context.ProductDescriptions'  is null.");
                 }
+
                 _context.ProductDescriptions.Add(productDescription);
                 await _context.SaveChangesAsync();
-
             }
             catch (DbUpdateException ex)
             {
@@ -143,6 +147,7 @@ namespace PedalacomOfficial.Controllers
 
             return CreatedAtAction("GetProductDescription", new { id = productDescription.ProductDescriptionId }, productDescription);
         }
+
 
         // DELETE: api/ProductDescriptions/5
         [HttpDelete("{id}")]

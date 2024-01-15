@@ -148,7 +148,6 @@ namespace PedalacomOfficial.Controllers
                 return BadRequest("Il DTO non può essere null.");
             }
 
-            // Genera un nuovo Rowguid
 
             _logger.LogInformation($"Generato Rowguid: {productCategoryDTO.Rowguid} per il nuovo ProductCategory");
 

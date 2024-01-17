@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PedalacomOfficial", "Pedala
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pedalacom.Authentication", "..\..\..\..\Documents\GitHub\-Pedalacom-BE\Pedalacom.Authentication\Pedalacom.Authentication.csproj", "{02CE9350-899C-4572-A1D7-7EB81695E8E3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pedalacom.ShoppingCart", "..\..\..\..\..\Downloads\Pedalacom.ShoppingCart\Pedalacom.ShoppingCart\Pedalacom.ShoppingCart.csproj", "{0BD66535-A3D6-4E9F-B8AD-BFB5FAA94350}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{02CE9350-899C-4572-A1D7-7EB81695E8E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02CE9350-899C-4572-A1D7-7EB81695E8E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02CE9350-899C-4572-A1D7-7EB81695E8E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BD66535-A3D6-4E9F-B8AD-BFB5FAA94350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BD66535-A3D6-4E9F-B8AD-BFB5FAA94350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BD66535-A3D6-4E9F-B8AD-BFB5FAA94350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BD66535-A3D6-4E9F-B8AD-BFB5FAA94350}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

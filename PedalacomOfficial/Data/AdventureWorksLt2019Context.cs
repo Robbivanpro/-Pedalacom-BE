@@ -14,7 +14,9 @@ public partial class AdventureWorksLt2019Context : DbContext
     {
 
     }
+    public DbSet<CartItem> ShoppingCartItems { get; set; }
 
+    public DbSet<Admin> Admins { get; set; }
     public virtual DbSet<Address> Addresses { get; set; }
 
     public virtual DbSet<BuildVersion> BuildVersions { get; set; }
@@ -48,8 +50,10 @@ public partial class AdventureWorksLt2019Context : DbContext
     public virtual DbSet<VProductModelCatalogDescription> VProductModelCatalogDescriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#pragma warning disable CS1030 // direttiva #warning
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=AdventureWorksLT2019;Trusted_Connection=True;TrustServerCertificate=True;");
+#pragma warning restore CS1030 // direttiva #warning
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -236,6 +236,7 @@ namespace PedalacomOfficial.Controllers
 
                     if (customerAddress == null )
                     {
+#pragma warning disable CS8602 // Dereferenziamento di un possibile riferimento Null.
                         customerAddress = new CustomerAddress 
                         { 
                             CustomerId = customer.CustomerId, 
@@ -244,6 +245,7 @@ namespace PedalacomOfficial.Controllers
                             AddressType = customerAddress.AddressType
                         
                         };
+#pragma warning restore CS8602 // Dereferenziamento di un possibile riferimento Null.
 
                         _context.CustomerAddresses.Add(customerAddress);
                     }                    

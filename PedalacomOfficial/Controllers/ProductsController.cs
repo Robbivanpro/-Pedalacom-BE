@@ -42,7 +42,7 @@ namespace PedalacomOfficial.Controllers
             {
                 _logger.LogError($"An error occurred while getting all products: {ex.Message}");
             }
-          
+
             return await _context.Products.ToListAsync();
         }
 
@@ -72,7 +72,7 @@ namespace PedalacomOfficial.Controllers
             {
                 _logger.LogError($"An error occurred while getting product with ID {id}: {ex.Message}");
             }
-          return NotFound();
+            return NotFound();
         }
 
         // PUT: api/Products/5
@@ -105,7 +105,7 @@ namespace PedalacomOfficial.Controllers
                     throw;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while updating product with ID {id}: {ex.Message}");
             }
@@ -136,7 +136,6 @@ namespace PedalacomOfficial.Controllers
             }
 
             // Creazione di Product
-#pragma warning disable CS8601 // Possibile assegnazione di riferimento Null.
             var product = new Product
             {
                 Name = productDTO.Name,
@@ -145,20 +144,30 @@ namespace PedalacomOfficial.Controllers
                 StandardCost = productDTO.StandardCost,
                 ListPrice = productDTO.ListPrice,
                 Size = productDTO.Size,
-                Weight = productDTO.Weight,               
+                Weight = productDTO.Weight,
                 ThumbnailPhotoFileName = productDTO.ThumbnailPhotoFileName,
                 Rowguid = Guid.NewGuid(),
                 ModifiedDate = DateTime.UtcNow,
-                SellStartDate = DateTime.UtcNow, 
-                SellEndDate = null, 
-                DiscontinuedDate = null 
-
+                SellStartDate = DateTime.UtcNow,
+                SellEndDate = null,
+                DiscontinuedDate = null
             };
-#pragma warning restore CS8601 // Possibile assegnazione di riferimento Null.
+
+            if (!string.IsNullOrEmpty(productDTO.ThumbNailPhotoBase64))
+            {
+                try
+                {
+                    product.ThumbNailPhoto = Convert.FromBase64String(productDTO.ThumbNailPhotoBase64);
+                }
+                catch (FormatException ex)
+                {
+                    _logger.LogError($"Errore nella conversione dell'immagine thumbnail: {ex.Message}");
+                    return BadRequest("Formato dell'immagine thumbnail non valido.");
+                }
+            }
 
             try
             {
-                
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
             }
@@ -175,11 +184,11 @@ namespace PedalacomOfficial.Controllers
 
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
+   
 
-       
 
-        // DELETE: api/Products/5
-        [HttpDelete("{id}")]
+    // DELETE: api/Products/5
+    [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try

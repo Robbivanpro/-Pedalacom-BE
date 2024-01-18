@@ -31,7 +31,13 @@ namespace PedalacomOfficial.Models.DTO
 
         public int? ProductModelId { get; set; }
 
+        public byte[]? ThumbNailPhoto { get; set; }
+
+
         public string? ThumbnailPhotoFileName { get; set; }
+
+        public string? ThumbNailPhotoBase64 { get; set; }
+
 
         public DateTime SellStartDate { get; set; }
 
